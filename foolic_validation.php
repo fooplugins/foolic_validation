@@ -3,12 +3,12 @@
  * FooLicensing License Key Validation
  *
  * @author    Brad Vincent
- * @version   1.3
+ * @version   1.4
  */
 
-if (!class_exists('foolic_validation_v1_3')) {
+if (!class_exists('foolic_validation_v1_4')) {
 
-	class foolic_validation_v1_3 {
+	class foolic_validation_v1_4 {
 
 		protected $plugin_validation_url;
 		protected $plugin_slug;
@@ -17,7 +17,7 @@ if (!class_exists('foolic_validation_v1_3')) {
 		protected $license_valid;
 		protected $license_expires;
 
-		function foolic_validation_v1_3($plugin_validation_url, $plugin_slug) {
+		function foolic_validation_v1_4($plugin_validation_url, $plugin_slug) {
 			$this->plugin_validation_url = $plugin_validation_url;
 			$this->plugin_slug = $plugin_slug;
 
