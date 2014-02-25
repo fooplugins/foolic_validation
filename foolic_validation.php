@@ -248,8 +248,8 @@ jQuery(function($) {
 
 		function ajax_license_set_validity() {
 			if (wp_verify_nonce($_REQUEST['nonce'], $this->plugin_slug . '_foolic-ajax-nonce')) {
-				$valid   = $_REQUEST['valid'];
-				$expires = $_REQUEST['expires'];
+				$valid   = htmlspecialchars($_REQUEST['valid']);
+				$expires = htmlspecialchars($_REQUEST['expires']);
 				update_site_option($this->plugin_slug . '_valid', $valid);
 				if (!empty($expires)) {
 					update_site_option($this->plugin_slug . '_valid_expires', $expires);
@@ -269,9 +269,7 @@ jQuery(function($) {
 
 				if (wp_verify_nonce($_REQUEST['nonce'], $this->plugin_slug . '_foolic-ajax-nonce')) {
 
-					$license = $_REQUEST['license'];
-
-					update_site_option($this->plugin_slug . '_licensekey', $license);
+					$license = htmlspecialchars( $_REQUEST['license'] );
 
 					$response_raw = wp_remote_post($this->plugin_validation_url, $this->prepare_validate_request($license));
 
@@ -287,28 +285,33 @@ jQuery(function($) {
 
 						$response = $response_raw['body'];
 
-						header('Content-type: application/json');
+						$response_object = @json_decode( $response );
+						if ( !empty($response_object->response) ) {
+							header('Content-type: application/json');
 
-						//try to save the setting
-						if (array_key_exists('input', $_REQUEST)) {
-							$setting_name = $_REQUEST['input'];
+							//only save the option if return good response from server
+							update_site_option($this->plugin_slug . '_licensekey', $license);
+							//try to save the setting
+							if (array_key_exists('input', $_REQUEST)) {
+									$setting_name = htmlspecialchars( $_REQUEST['input'] );
 
-							if (preg_match('/([^\]]*)\[([^\]]*)\]/', $setting_name, $match)) {
-								$option_name = $match[1];
-								$option_key  = $match[2];
+								if (preg_match('/([^\]]*)\[([^\]]*)\]/', $setting_name, $match)) {
+									$option_name = $match[1];
+									$option_key  = $match[2];
 
-								$option = get_site_option($option_name);
-								if (is_array($option)) {
-									$option[$option_key] = $license;
-									update_site_option($option_name, $option);
-								} else {
-									delete_site_option($option_name);
-									add_site_option($option_name, array($option_key => $license));
+									$option = get_site_option($option_name);
+									if (is_array($option)) {
+										$option[$option_key] = $license;
+										update_site_option($option_name, $option);
+									} else {
+										delete_site_option($option_name);
+										add_site_option($option_name, array($option_key => $license));
+									}
 								}
 							}
-						}
 
-						echo $response;
+							echo $response;
+						}
 						die;
 					}
 
