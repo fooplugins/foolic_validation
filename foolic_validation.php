@@ -35,15 +35,27 @@ if (!class_exists('foolic_validation_v1_3')) {
 				add_filter('foolic_get_validation_data-'.$this->plugin_slug, array($this, 'get_validation_data'));
 			}
 		}
+		
+		/**
+		 * Securely get the option, sanitize and return
+		 *
+		 * @param $key string The key of the option we want to get
+		 *
+		 * @return string The option value
+		 */
+		function get_option_secure($key) {
+			$option = get_site_option($key);
+			return  htmlspecialchars($option);
+		}
 
 		function validate($license = false) {
 			if ($license === false) {
-				$license = apply_filters( $this->plugin_slug . '_foolic_licensekey', get_site_option($this->plugin_slug . '_licensekey') );
+				$license = apply_filters( $this->plugin_slug . '_foolic_licensekey', $this->get_option_secure( $this->plugin_slug . '_licensekey' ) );
 			}
 
-			$valid = !empty($license) ? apply_filters( $this->plugin_slug . '_foolic_valid', get_site_option($this->plugin_slug . '_valid') ) : false;
+			$valid = !empty($license) ? apply_filters( $this->plugin_slug . '_foolic_valid', $this->get_option_secure( $this->plugin_slug . '_valid' ) ) : false;
 
-			$expires = apply_filters( $this->plugin_slug . '_foolic_expires', get_site_option($this->plugin_slug . '_valid_expires') );
+			$expires = apply_filters( $this->plugin_slug . '_foolic_expires', $this->get_option_secure( $this->plugin_slug . '_valid_expires' ) );
 
 			if ($expires !== false && $expires !== 'never') {
 				if (strtotime($expires) < strtotime(date("Y-m-d"))) {
