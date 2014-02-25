@@ -35,7 +35,7 @@ if (!class_exists('foolic_validation_v1_4')) {
 				add_filter('foolic_get_validation_data-'.$this->plugin_slug, array($this, 'get_validation_data'));
 			}
 		}
-		
+
 		/**
 		 * Securely get the option, sanitize and return
 		 *
@@ -45,6 +45,7 @@ if (!class_exists('foolic_validation_v1_4')) {
 		 */
 		function get_option_secure($key) {
 			$option = get_site_option($key);
+
 			return  htmlspecialchars($option);
 		}
 
@@ -53,11 +54,11 @@ if (!class_exists('foolic_validation_v1_4')) {
 				$license = apply_filters( $this->plugin_slug . '_foolic_licensekey', $this->get_option_secure( $this->plugin_slug . '_licensekey' ) );
 			}
 
-			$valid = !empty($license) ? apply_filters( $this->plugin_slug . '_foolic_valid', $this->get_option_secure( $this->plugin_slug . '_valid' ) ) : false;
+			$valid = !empty($license) ? apply_filters( $this->plugin_slug . '_foolic_valid', $this->get_option_secure( $this->plugin_slug . '_valid') ) : false;
 
-			$expires = apply_filters( $this->plugin_slug . '_foolic_expires', $this->get_option_secure( $this->plugin_slug . '_valid_expires' ) );
+			$expires = apply_filters( $this->plugin_slug . '_foolic_expires', $this->get_option_secure( $this->plugin_slug . '_valid_expires') );
 
-			if ($expires !== false && $expires !== 'never') {
+			if (!empty($expires) && $expires !== 'never') {
 				if (strtotime($expires) < strtotime(date("Y-m-d"))) {
 					$valid = 'expired'; //it has expired!
 				}
@@ -286,14 +287,17 @@ jQuery(function($) {
 						$response = $response_raw['body'];
 
 						$response_object = @json_decode( $response );
+
 						if ( !empty($response_object->response) ) {
+
 							header('Content-type: application/json');
 
 							//only save the option if return good response from server
 							update_site_option($this->plugin_slug . '_licensekey', $license);
+
 							//try to save the setting
 							if (array_key_exists('input', $_REQUEST)) {
-									$setting_name = htmlspecialchars( $_REQUEST['input'] );
+								$setting_name = htmlspecialchars( $_REQUEST['input'] );
 
 								if (preg_match('/([^\]]*)\[([^\]]*)\]/', $setting_name, $match)) {
 									$option_name = $match[1];
@@ -311,7 +315,9 @@ jQuery(function($) {
 							}
 
 							echo $response;
+
 						}
+
 						die;
 					}
 
